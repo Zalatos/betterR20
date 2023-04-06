@@ -154,7 +154,8 @@ const betteR205etoolsMain = function () {
 			playerImport: true,
 			allImport: true,
 			baseUrl: CLASS_DATA_DIR,
-			defaultSource: "",
+			fnGetTemplate: (category) => d20plus.template5e.getSettingsHTMLPredefined(category),
+			isUrlCustomOnly: true,
 		},
 		{
 			name: "deity",

@@ -41,31 +41,36 @@ function d20plusClass () {
 	}
 
 	// Import Classes button was clicked
-	d20plus.classes.button = function (forcePlayer) {
+	d20plus.classes.button = async function (forcePlayer) {
 		const playerMode = forcePlayer || !window.is_gm;
 		const url = playerMode ? $("#import-classes-url-player").val() : $("#import-classes-url").val();
-		if (url && url.trim()) {
-			const handoutBuilder = playerMode ? d20plus.classes.playerImportBuilder : d20plus.classes.handoutBuilder;
-			const officialClassUrls = Object.values(classDataUrls).map(v => d20plus.formSrcUrl(CLASS_DATA_DIR, v));
+		if (!url || !url.trim()) return;
 
-			DataUtil.loadJSON(url).then(async (data) => {
-				if (!data.class) return;
+		const handoutBuilder = playerMode ? d20plus.classes.playerImportBuilder : d20plus.classes.handoutBuilder;
 
-				data = await d20plus.classes.getDataForImport(data);
+		// make sure the homebrew system knows about it
+		await BrewUtil2.pAddBrewFromUrl(url)
 
-				d20plus.importer.showImportList(
-					"class",
-					data.class,
-					handoutBuilder,
-					{
-						forcePlayer,
-						builderOptions: {
-							isHomebrew: !officialClassUrls.includes(url),
-						},
-					},
-				);
-			});
-		}
+		// get the semi-processed data (this will merge `_copy` etc., but not dereference `ref*`)
+		const data = await DataUtil.loadJSON(url)
+
+		// From the semi-processed data, get the final dereferenced data, by asking the `DataLoader` (which has a pipeline to resolve all refs) for it
+		const classesDeref = await data.class
+			.pSerialAwaitMap(cls => DataLoader.pCacheAndGet("class", cls.source, UrlUtil.URL_TO_HASH_BUILDER[UrlUtil.PG_CLASSES](cls), {isCopy: true}))
+
+		if (!classesDeref?.length) return;
+
+		await d20plus.importer.showImportList(
+			"class",
+			classesDeref,
+			handoutBuilder,
+			{
+				forcePlayer,
+				builderOptions: {
+					isHomebrew: true,
+				},
+			},
+		);
 	};
 
 	// Import All Classes button was clicked

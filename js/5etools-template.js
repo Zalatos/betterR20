@@ -1,17 +1,29 @@
 const d20plusTemplate = function () {
 	d20plus.template5e = {};
 
-	d20plus.template5e._populateDropdown = function (dropdownId, inputFieldId, baseUrl, srcUrlObject, defaultSel, brewProps) {
+	d20plus.template5e._populateDropdown = function (
+		{
+			 dropdownId,
+			 inputFieldId,
+			 baseUrl,
+			 srcUrlObject,
+			 defaultSel,
+			 brewProps,
+		 },
+	 ) {
 		const defaultUrl = defaultSel ? d20plus.formSrcUrl(baseUrl, srcUrlObject[defaultSel]) : "";
 		$(inputFieldId).val(defaultUrl);
-		const dropdown = $(dropdownId);
-		$.each(Object.keys(srcUrlObject), function (i, src) {
-			dropdown.append($("<option>", {
-				value: d20plus.formSrcUrl(baseUrl, srcUrlObject[src]),
-				text: brewProps.includes("class") ? src.uppercaseFirst() : Parser.sourceJsonToFullCompactPrefix(src),
-			}));
-		});
-		dropdown.append($("<option>", {
+		const $dropdown = $(dropdownId);
+
+		Object.keys(srcUrlObject)
+			.forEach(src => {
+				$dropdown.append($("<option>", {
+					value: d20plus.formSrcUrl(baseUrl, srcUrlObject[src]),
+					text: Parser.sourceJsonToFullCompactPrefix(src) ,
+				}));
+			});
+
+		$dropdown.append($("<option>", {
 			value: "",
 			text: "Custom",
 		}));
@@ -31,23 +43,32 @@ const d20plusTemplate = function () {
 				});
 		});
 		dataList.sort((a, b) => SortUtil.ascSortLower(a.name, b.name)).forEach(it => {
-			dropdown.append($("<option>", {
+			$dropdown.append($("<option>", {
 				value: `${it.download_url}${d20plus.ut.getAntiCacheSuffix()}`,
 				text: `Homebrew: ${it.name.trim().replace(/\.json$/i, "")}`,
 			}));
 		});
 
-		dropdown.val(defaultUrl);
-		dropdown.change(function () {
+		$dropdown.val(defaultUrl);
+		$dropdown.change(function () {
 			$(inputFieldId).val(this.value);
 		});
 	}
 
-	d20plus.template5e._populateBasicDropdown = function (dropdownId, inputFieldId, defaultSel, brewProps, addForPlayers) {
+	d20plus.template5e._populateBasicDropdown = function (
+		{
+			dropdownId,
+			inputFieldId,
+			defaultSel,
+			brewProps,
+			addForPlayers,
+			isUrlCustomOnly = false,
+		}
+	) {
 		function doPopulate (dropdownId, inputFieldId) {
 			const $sel = $(dropdownId);
 			const existingItems = !!$sel.find(`option`).length;
-			if (defaultSel) {
+			if (!isUrlCustomOnly && defaultSel) {
 				$(inputFieldId).val(defaultSel);
 				$sel.append($("<option>", {
 					value: defaultSel,
@@ -121,7 +142,6 @@ const d20plusTemplate = function () {
 		const dataUrls = {
 			"spell": spellDataUrls,
 			"monster": monsterDataUrls,
-			"class": classDataUrls,
 		}
 
 		const $body = $("body");
@@ -135,7 +155,11 @@ const d20plusTemplate = function () {
 			$wrpSettings.append($ptAdventures);
 
 			IMPORT_CATEGORIES.forEach(ic => {
-				$wrpSettings.append(d20plus.template5e.getSettingsHTML(ic));
+				$wrpSettings.append(
+					ic.fnGetTemplate ?
+						ic.fnGetTemplate(ic)
+						: d20plus.template5e.getSettingsHTML(ic)
+				);
 			})
 			$ptAdventures.find(`.Vetools-module-tool-open`).click(() => d20plus.tool.get("MODULES").openFn());
 			$wrpSettings.append(d20plus.template5e.settingsHtmlPtImportFooter);
@@ -225,21 +249,57 @@ const d20plusTemplate = function () {
 		});
 
 		// add class subclasses to the subclasses dropdown(s)
-		d20plus.template5e._populateDropdown("#button-subclasses-select", "#import-subclasses-url", CLASS_DATA_DIR, classDataUrls, "", ["class"]);
-		d20plus.template5e._populateDropdown("#button-subclasses-select-player", "#import-subclasses-url-player", CLASS_DATA_DIR, classDataUrls, "", ["class"]);
+		d20plus.template5e._populateDropdown({
+			dropdownId: "#button-subclasses-select",
+			inputFieldId: "#import-subclasses-url",
+			baseUrl: CLASS_DATA_DIR,
+			srcUrlObject: {},
+			defaultSel: "",
+			brewProps: ["class"],
+		});
+		d20plus.template5e._populateDropdown({
+			dropdownId: "#button-subclasses-select-player",
+			inputFieldId: "#import-subclasses-url-player",
+			baseUrl: CLASS_DATA_DIR,
+			srcUrlObject: {},
+			defaultSel: "",
+			brewProps: ["class"],
+		});
 
 		// Populate all relevant dropdowns
 		IMPORT_CATEGORIES.forEach(ic => {
-			if (ic.defaultSource !== undefined) {
-				d20plus.template5e._populateDropdown(`#button-${ic.plural}-select`, `#import-${ic.plural}-url`,
-					ic.baseUrl, dataUrls[ic.name], ic.defaultSource, [`${ic.name}`]);
-				if (ic.playerImport) {
-					d20plus.template5e._populateDropdown(`#button-${ic.plural}-select-player`, `#import-${ic.plural}-url-player`,
-						ic.baseUrl, dataUrls[ic.name], ic.defaultSource, [`${ic.name}`]);
-				}
+			if (ic.uniqueImport) return;
+
+			if (ic.defaultSource == null) {
+				d20plus.template5e._populateBasicDropdown({
+					dropdownId: `#button-${ic.plural}-select`,
+					inputFieldId: `#import-${ic.plural}-url`,
+					defaultSel: ic.baseUrl,
+					brewProps: [`${ic.name}`],
+					addForPlayers: ic.playerImport,
+					isUrlCustomOnly: !!ic.isUrlCustomOnly,
+				});
+				return;
 			}
-			else if (!ic.uniqueImport) {
-				d20plus.template5e._populateBasicDropdown(`#button-${ic.plural}-select`, `#import-${ic.plural}-url`, ic.baseUrl, [`${ic.name}`], ic.playerImport);
+
+			d20plus.template5e._populateDropdown({
+				dropdownId: `#button-${ic.plural}-select`,
+				inputFieldId: `#import-${ic.plural}-url`,
+				baseUrl: ic.baseUrl,
+				srcUrlObject: dataUrls[ic.name],
+				defaultSel: ic.defaultSource,
+				brewProps: [`${ic.name}`]
+			});
+
+			if (ic.playerImport) {
+				d20plus.template5e._populateDropdown({
+					dropdownId: `#button-${ic.plural}-select-player`,
+					inputFieldId: `#import-${ic.plural}-url-player`,
+					baseUrl: ic.baseUrl,
+					srcUrlObject: dataUrls[ic.name],
+					defaultSel: ic.defaultSource,
+					brewProps: [`${ic.name}`],
+				});
 			}
 		})
 
@@ -277,6 +337,27 @@ const d20plusTemplate = function () {
 <input type="text" id="import-${category.plural}-url">
 ${category.allImport ? "<p>" : ""}<a class="btn" href="#" id="import-${category.plural}-load">Import ${category.plural.toTitleCase()}</a>${category.allImport ? "</p>" : ""}
 ${allButton}
+${fileButton}
+${finalText}
+</div>
+`
+	}
+
+	d20plus.template5e.getSettingsHTMLPredefined = function (category) {
+		if (category.uniqueImport) return "";
+
+		const allButton = category.allImport ? `<p><a class="btn" href="#" id="import-${category.plural}-load-all" title="Standard sources only; no third-party or UA">Import ${category.plural.toTitleCase()} From All Sources</a></p>` : "";
+		const fileButton = category.fileImport ? `<p><a class="btn" href="#" id="import-${category.plural}-load-file" title="5eTools JSON formats only">Import ${category.plural.toTitleCase()} From URL</a></p>` : "";
+		const finalText = category.finalText ? `<p>${category.finalText}</p>` : "";
+
+		return `
+<div class="importer-section" data-import-group="${category.name}">
+<h4>${category.titleSing || category.name.toTitleCase()} Importing</h4>
+${allButton}
+<label for="import-${category.plural}-url">${category.titleSing || category.name.toTitleCase()} Data URL:</label>
+<select id="button-${category.plural}-select"><!-- populate with JS--></select>
+<input type="text" id="import-${category.plural}-url">
+${category.allImport ? "<p>" : ""}<a class="btn" href="#" id="import-${category.plural}-load">Import ${category.plural.toTitleCase()}</a>${category.allImport ? "</p>" : ""}
 ${fileButton}
 ${finalText}
 </div>
