@@ -65,8 +65,10 @@ function d20plusEngine () {
 
 		d20plus.mod.overwriteStatusEffects();
 
-		d20.engine.canvas.off("object:added");
-		d20.engine.canvas.on("object:added", d20plus.mod.overwriteStatusEffects);
+		if (d20.engine.canvas){
+            d20.engine.canvas.off("object:added");
+            d20.engine.canvas.on("object:added", d20plus.mod.overwriteStatusEffects);
+        }
 
 		// the holy trinity
 		// d20.engine.canvas.on("object:removed", () => console.log("added"));
@@ -528,33 +530,35 @@ function d20plusEngine () {
 
 	// needs to be called after `enhanceMeasureTool()`
 	d20plus.engine.enhanceMouseMove = () => {
-		// add missing vars
-		var i = d20.engine.canvas;
+		if (d20.engine.canvas){
+			// add missing vars
+			var i = d20.engine.canvas;
 
-		// Roll20 bug (present as of 2019-5-25) workaround
-		//   when box-selecting + moving tokens, the "object:moving" event throws an exception
-		//   try-catch-ignore this, because it's extremely annoying
-		const cachedFire = i.fire.bind(i);
-		i.fire = function (namespace, opts) {
-			if (namespace === "object:moving") {
-				try {
+			// Roll20 bug (present as of 2019-5-25) workaround
+			//   when box-selecting + moving tokens, the "object:moving" event throws an exception
+			//   try-catch-ignore this, because it's extremely annoying
+			const cachedFire = i.fire.bind(i);
+			i.fire = function (namespace, opts) {
+				if (namespace === "object:moving") {
+					try {
+						cachedFire(namespace, opts);
+					} catch (e) {}
+				} else {
 					cachedFire(namespace, opts);
-				} catch (e) {}
-			} else {
-				cachedFire(namespace, opts);
+				}
+			};
+
+			const I = d20plus.overwrites.canvasHandlerMove
+
+			if (FINAL_CANVAS_MOUSEMOVE_LIST.length) {
+				FINAL_CANVAS_MOUSEMOVE = (FINAL_CANVAS_MOUSEMOVE_LIST.find(it => it.on === d20.engine.final_canvas) || {}).listener;
 			}
-		};
 
-		const I = d20plus.overwrites.canvasHandlerMove
-
-		if (FINAL_CANVAS_MOUSEMOVE_LIST.length) {
-			FINAL_CANVAS_MOUSEMOVE = (FINAL_CANVAS_MOUSEMOVE_LIST.find(it => it.on === d20.engine.final_canvas) || {}).listener;
-		}
-
-		if (FINAL_CANVAS_MOUSEMOVE) {
-			d20plus.ut.log("Enhancing mouse move");
-			d20.engine.final_canvas.removeEventListener("mousemove", FINAL_CANVAS_MOUSEMOVE);
-			d20.engine.final_canvas.addEventListener("mousemove", I);
+			if (FINAL_CANVAS_MOUSEMOVE) {
+				d20plus.ut.log("Enhancing mouse move");
+				d20.engine.final_canvas.removeEventListener("mousemove", FINAL_CANVAS_MOUSEMOVE);
+				d20.engine.final_canvas.addEventListener("mousemove", I);
+			}
 		}
 	};
 
@@ -748,11 +752,12 @@ function d20plusEngine () {
 				`);
 			}
 		}
-
-		d20.engine.canvas._renderAll = _.bind(d20plus.mod.renderAll, d20.engine.canvas);
-		d20.engine.canvas.sortTokens = _.bind(d20plus.mod.sortTokens, d20.engine.canvas);
-		d20.engine.canvas.drawAnyLayer = _.bind(d20plus.mod.drawAnyLayer, d20.engine.canvas);
-		d20.engine.canvas.drawTokensWithoutAuras = _.bind(d20plus.mod.drawTokensWithoutAuras, d20.engine.canvas);
+		if (d20.engine.canvas){}
+			d20.engine.canvas._renderAll = _.bind(d20plus.mod.renderAll, d20.engine.canvas);
+			d20.engine.canvas.sortTokens = _.bind(d20plus.mod.sortTokens, d20.engine.canvas);
+			d20.engine.canvas.drawAnyLayer = _.bind(d20plus.mod.drawAnyLayer, d20.engine.canvas);
+			d20.engine.canvas.drawTokensWithoutAuras = _.bind(d20plus.mod.drawTokensWithoutAuras, d20.engine.canvas);
+		}
 	};
 
 	d20plus.engine.removeLinkConfirmation = function () {
