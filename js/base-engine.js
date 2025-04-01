@@ -752,7 +752,7 @@ function d20plusEngine () {
 				`);
 			}
 		}
-		if (d20.engine.canvas){}
+		if (d20.engine.canvas){
 			d20.engine.canvas._renderAll = _.bind(d20plus.mod.renderAll, d20.engine.canvas);
 			d20.engine.canvas.sortTokens = _.bind(d20plus.mod.sortTokens, d20.engine.canvas);
 			d20.engine.canvas.drawAnyLayer = _.bind(d20plus.mod.drawAnyLayer, d20.engine.canvas);
