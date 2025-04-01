@@ -72,7 +72,7 @@ function baseChat () {
 
 	function availableLanguages (charId) {
 		const char = d20.Campaign.characters.get(charId);
-		const firstCharSheet = d20.journal.characterSheetsManager.getAllSheets().first();
+		const firstCharSheet = d20.journal.customSheets ?? d20.journal.characterSheetsManager.getAllSheets().first();
 		const langId = firstCharSheet.availableAttributes.repeating_proficiencies_prof_type;
 		if (!char) return [];
 		if (!char.attribs.length) {
