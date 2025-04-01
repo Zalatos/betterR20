@@ -64,11 +64,13 @@ function d20plusEngine () {
 		$(`head`).append(`<style id="5etools-status-css"/>`);
 
 		d20plus.mod.overwriteStatusEffects();
+		if (!d20.engine.canvas.on) {
+			d20.engine.canvas.prototype.on = $.on ?? $("babylonCanvas").on;
+			d20.engine.canvas.prototype.off = $.off ?? $("babylonCanvas").off;
+		}
 
-		if (d20.engine.canvas){
-            d20.engine.canvas.off("object:added");
-            d20.engine.canvas.on("object:added", d20plus.mod.overwriteStatusEffects);
-        }
+		d20.engine.canvas.off("object:added");
+		d20.engine.canvas.on("object:added", d20plus.mod.overwriteStatusEffects);
 
 		// the holy trinity
 		// d20.engine.canvas.on("object:removed", () => console.log("added"));
@@ -592,6 +594,11 @@ function d20plusEngine () {
 			d20plus.engine._drawTokenHover();
 			cacheRenderLoop();
 		};
+
+		if (!d20.engine.canvas.on) {
+			d20.engine.canvas.prototype.on = $.on ?? $("babylonCanvas").on;
+			d20.engine.canvas.prototype.off = $.off ?? $("babylonCanvas").off;
+		}
 
 		// store data for the rendering function to access
 		d20.engine.canvas.on("mouse:move", (data, ...others) => {
