@@ -868,7 +868,7 @@ function baseChat () {
 		// $.trim() instead of .trim() cause it's used in roll20's doChatInput()
 		let toSend = $.trim(text);
 		if (text !== srcText && text) d20plus.chat.localHistory.push($.trim(srcText));
-		if ($("#soundslike").get(0)) toSend = "";
+		if (document.getElementById("soundslike")) toSend = "";
 
 		if (toSend.includes("|&inlang|")) {
 			toSend.split("\n").forEach((str, i) => {
@@ -914,7 +914,7 @@ function baseChat () {
 			d20plus.chat.processPlayersList();
 			const obsconfig = { childList: true, subtree: false };
 			d20plus.cfg.playerWatcher = new MutationObserver(d20plus.chat.processPlayersList);
-			d20plus.cfg.playerWatcher.observe($("#avatarContainer").get(0), obsconfig);
+			d20plus.cfg.playerWatcher.observe(document.getElementById("avatarContainer"), obsconfig);
 		}
 
 		if (d20plus.cfg.getOrDefault("chat", "social")) {
