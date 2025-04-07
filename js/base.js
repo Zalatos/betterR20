@@ -40,9 +40,21 @@ const D20plus = function (version) {
 					if ((typeof window.d20 !== "undefined" || window.currentPlayer?.d20) && !$("#loading-overlay").is(":visible") && !hasRunInit) {
 						hasRunInit = true;
 						if (!window.d20) window.d20 = window.currentPlayer.d20;
+						const isJumpGate = !d20.engine.canvas;
 						d20.engine.canvas ??= document.getElementById("babylonCanvas");
-						d20plus.Init();
-					} else {
+						(function waitForSheet(){
+							let isMultiSheet = isJumpGate && !d20.journal.customSheets;
+							// when in jump gate with multiple sheets, waiting for layouthtml property to be present required
+							const sheets = d20.journal.characterSheetsManager.getAllSheets();
+							if (!isMultiSheet || (isMultiSheet && (sheets.length == 0 || sheets.first().layouthtml))) {
+								d20plus.Init();
+							}
+							else {
+								setTimeout(waitForSheet, 50);
+							}
+						})();
+					}
+					else {
 						setTimeout(waitForD20, 50);
 					}
 				})();

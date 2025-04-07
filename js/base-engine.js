@@ -65,8 +65,9 @@ function d20plusEngine () {
 
 		d20plus.mod.overwriteStatusEffects();
 		if (!d20.engine.canvas.on) {
-			d20.engine.canvas.on = $("babylonCanvas").on;
-			d20.engine.canvas.off = $("babylonCanvas").off;
+			d20.engine.canvas.on = $.fn.on;
+			d20.engine.canvas.off = $.fn.off;
+			d20.engine.canvas.each = $.fn.each;
 		}
 
 		d20.engine.canvas.off("object:added");
@@ -532,7 +533,7 @@ function d20plusEngine () {
 
 	// needs to be called after `enhanceMeasureTool()`
 	d20plus.engine.enhanceMouseMove = () => {
-		if (d20.engine.canvas) {
+		if (d20.engine.canvas.fire) {
 			// add missing vars
 			var i = d20.engine.canvas;
 
@@ -596,8 +597,9 @@ function d20plusEngine () {
 		};
 
 		if (!d20.engine.canvas.on) {
-			d20.engine.canvas.on = $("babylonCanvas").on;
-			d20.engine.canvas.off = $("babylonCanvas").off;
+			d20.engine.canvas.on = $.fn.on;
+			d20.engine.canvas.off = $.fn.off;
+			d20.engine.canvas.each = $.fn.each;
 		}
 
 		// store data for the rendering function to access
