@@ -7,7 +7,7 @@ function baseMenu () {
 
 		const getTokenWhisperPart = () => d20plus.cfg.getOrDefault("token", "massRollWhisperName") ? "/w gm Rolling for @{selected|token_name}...\n" : "";
 
-		if (typeof(Mousetrap) !== "undefined"){
+		if (typeof Mousetrap !== "undefined"){
 			Mousetrap.bind("b b", function () { // back on layer
 				const n = d20plus.engine.getSelectedToMove();
 				d20plus.engine.backwardOneLayer(n);

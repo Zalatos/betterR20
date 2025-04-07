@@ -907,7 +907,8 @@ const betteR205etoolsMain = function () {
 		d20plus.ut.log("Switched Character Sheet Template");
 		d20plus.sheet = "ogl";
 		const sheets = d20.journal.customSheets ?? d20.journal.characterSheetsManager.getAllSheets();
-		if (window.is_gm && sheets.length < 1) {
+		const noSheetsFound = !d20.journal.customSheets && Array.isArray(sheets) && sheets.length < 1;
+		if (window.is_gm && noSheetsFound) {
 			const $body = $(`body`);
 			$body.addClass("ve-nosheet__body");
 			const $btnClose = $(`<button class="btn btn-danger ve-nosheet__btn-close">X</button>`)
@@ -931,8 +932,8 @@ const betteR205etoolsMain = function () {
 			throw new Error("No character sheet selected!");
 		}
 		const firstSheet = d20.journal.customSheets ?? sheets.first();
-		if (firstSheet.layouthtml.indexOf("shaped_d20") > 0) d20plus.sheet = "shaped";
-		if (firstSheet.layouthtml.indexOf("DnD5e_Character_Sheet") > 0) d20plus.sheet = "community";
+		if (firstSheet.layouthtml.includes("shaped_d20")) d20plus.sheet = "shaped";
+		if (firstSheet.layouthtml.includes("DnD5e_Character_Sheet")) d20plus.sheet = "community";
 		d20plus.ut.log(`Switched Character Sheet Template to ${d20plus.sheet}`);
 	};
 

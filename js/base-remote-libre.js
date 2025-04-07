@@ -5,8 +5,7 @@ function remoteLibre () {
 				.then(response => response.json())
 				.then(data => {
 					// check if blocked
-					if (data.block)
-						return Promise.reject(`Blocked: ${data.block.reason ?? "Unknown reason"}`);
+					if (data.block)	return Promise.reject(`Blocked: ${data.block.reason ?? "Unknown reason"}`);
 					const promises = data.filter(file => file.download_url.toLowerCase().endsWith(".json"))
 						.map(file => d20plus.remoteLibre.downloadPlaylist(file.download_url));
 					return Promise.all(promises).then(res => d20plus.remoteLibre.processRemotePlaylists(res));
