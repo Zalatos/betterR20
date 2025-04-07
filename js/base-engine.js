@@ -65,8 +65,8 @@ function d20plusEngine () {
 
 		d20plus.mod.overwriteStatusEffects();
 		if (!d20.engine.canvas.on) {
-			d20.engine.canvas.prototype.on = $.on ?? $("babylonCanvas").on;
-			d20.engine.canvas.prototype.off = $.off ?? $("babylonCanvas").off;
+			d20.engine.canvas.on = $("babylonCanvas").on;
+			d20.engine.canvas.off = $("babylonCanvas").off;
 		}
 
 		d20.engine.canvas.off("object:added");
@@ -596,8 +596,8 @@ function d20plusEngine () {
 		};
 
 		if (!d20.engine.canvas.on) {
-			d20.engine.canvas.prototype.on = $.on ?? $("babylonCanvas").on;
-			d20.engine.canvas.prototype.off = $.off ?? $("babylonCanvas").off;
+			d20.engine.canvas.on = $("babylonCanvas").on;
+			d20.engine.canvas.off = $("babylonCanvas").off;
 		}
 
 		// store data for the rendering function to access
