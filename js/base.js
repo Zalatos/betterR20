@@ -46,7 +46,7 @@ const D20plus = function (version) {
 							let isMultiSheet = isJumpGate && !d20.journal.customSheets;
 							// when in jump gate with multiple sheets, waiting for layouthtml property to be present required
 							const sheets = d20.journal.characterSheetsManager.getAllSheets();
-							if (!isMultiSheet || (isMultiSheet && (sheets.length == 0 || sheets.first().layouthtml))) {
+							if (!isMultiSheet || (isMultiSheet && (sheets.length == 0 || sheets.any(x=>x.layouthtml)))) {
 								d20plus.Init();
 							}
 							else {
