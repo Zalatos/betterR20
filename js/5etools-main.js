@@ -313,7 +313,7 @@ const betteR205etoolsMain = function () {
 		{name: "bestiary index", url: `${MONSTER_DATA_DIR}index.json`},
 		{name: "bestiary fluff index", url: `${MONSTER_DATA_DIR}fluff-index.json`},
 		{name: "bestiary metadata", url: `${MONSTER_DATA_DIR}legendarygroups.json`},
-		// {name: "adventures index", url: `${DATA_URL}adventures.json`},  // error retrieving from 5e.tools
+		{name: "adventures index", url: `${DATA_URL}adventures.json`},  // error retrieving from 5e.tools
 		{name: "base items", url: `${DATA_URL}items-base.json`},
 		{name: "item modifiers", url: `${DATA_URL}roll20-items.json`},
 	];
