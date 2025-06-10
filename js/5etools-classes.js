@@ -474,6 +474,19 @@ function d20plusClass () {
 		}
 	};
 
+	d20plus.classes.addToBuildScreen = () => {
+		const $bs_BtnImportHtml = $(`<button type="button" style="text-align: center;">import classes
+</button>`);
+		$bs_BtnImportHtml.click(() => {
+			// open class importer with the context of importing as a class choice in builder__screen
+
+		});
+
+
+		let emptyRowAboveSearch = $(".builder__screen .builder-list-controls__row:first-of-type");
+		emptyRowAboveSearch.append($bs_BtnImportHtml);
+	}
+
 	/// /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 	d20plus.subclasses._groupOptions = ["Class", "Alphabetical", "Source"];
